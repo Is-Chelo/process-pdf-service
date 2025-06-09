@@ -4,20 +4,23 @@ import tempfile
 from weasyprint import HTML
 
 def pdf_generate():
-    html_content = """
-    <html>
-    <head>
-        <style>
-            body { font-family: sans-serif; }
-            h1 { color: navy; }
-        </style>
-    </head>
-    <body>
-        <h1>¡Hola desde AWS Lambda!</h1>
-        <p>Este PDF fue generado dinámicamente.</p>
-    </body>
-    </html>
-    """
+    
+    data = json.loads(event.get("body", "{}"))
+    html_content = int(data.get("html_content", 0))
+    # html_content = """
+    # <html>
+    # <head>
+    #     <style>
+    #         body { font-family: sans-serif; }
+    #         h1 { color: navy; }
+    #     </style>
+    # </head>
+    # <body>
+    #     <h1>¡Hola desde AWS Lambda!</h1>
+    #     <p>Este PDF fue generado dinámicamente.</p>
+    # </body>
+    # </html>
+    # """
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf:
         HTML(string=html_content).write_pdf(tmp_pdf.name)
 
