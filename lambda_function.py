@@ -1,6 +1,9 @@
 import json
+import base64
+import tempfile
+from weasyprint import HTML
 
-def lambda_handler(event, context):
+def pdf_generate():
     html_content = """
     <html>
     <head>
@@ -15,35 +18,41 @@ def lambda_handler(event, context):
     </body>
     </html>
     """
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf:
+        HTML(string=html_content).write_pdf(tmp_pdf.name)
 
-    try:
-        # Crear archivo temporal para el PDF
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf:
-            HTML(string=html_content).write_pdf(tmp_pdf.name)
+        with open(tmp_pdf.name, "rb") as f:
+            pdf_data = f.read()
+            encoded_pdf = base64.b64encode(pdf_data).decode("utf-8")
 
-            # Leer el contenido PDF y convertir a base64
-            with open(tmp_pdf.name, "rb") as f:
-                pdf_data = f.read()
-                encoded_pdf = base64.b64encode(pdf_data).decode('utf-8')
+    return {
+        "statusCode": 200,
+        "headers": {
+            "Content-Type": "application/pdf",
+            "Content-Disposition": "inline; filename=\"documento.pdf\""
+        },
+        "isBase64Encoded": True,
+        "body": encoded_pdf
+    }
 
+def sumar(event):
+    x = int(event["queryStringParameters"].get("x", 0))
+    y = int(event["queryStringParameters"].get("y", 0))
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"resultado": x + y})
+    }
+
+
+def lambda_handler(event, context):
+    path = event.get("path", "/")
+
+    if "/sumar" in path:
+        return sumar(event)
+    elif "/pdf" in path:
+        return pdf_generate()
+    else:
         return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'application/pdf',
-                'Content-Disposition': 'inline; filename="documento.pdf"'
-            },
-            'isBase64Encoded': True,
-            'body': encoded_pdf
+            "statusCode": 404,
+            "body": json.dumps("Ruta no encontrada")
         }
-
-    except Exception as e:
-        return {
-            'statusCode': 500,
-            'body': json.dumps(f'Error al generar PDF: {str(e)}')
-        }
-    
-    # TODO implement
-    # return {
-    #     'statusCode': 200,
-    #     'body': json.dumps('Hello from Carlos Lambda!')
-    # }
