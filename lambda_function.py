@@ -3,34 +3,6 @@ import base64
 import tempfile
 from weasyprint import HTML
 
-def pdf_generate(event):
-    data = json.loads(event.get("body", "{}"))
-    html_content = data.get("html_content", "")
-
-    if not html_content:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"error": "html_content es requerido"})
-        }
-
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf:
-        HTML(string=html_content).write_pdf(tmp_pdf.name)
-
-    with open(tmp_pdf.name, "rb") as f:
-        pdf_data = f.read()
-        encoded_pdf = base64.b64encode(pdf_data).decode("utf-8")
-
-    # Opcional: borrar archivo temporal si quieres, pero no es crítico en Lambda
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Content-Type": "application/pdf",
-            "Content-Disposition": 'inline; filename="documento.pdf"'
-        },
-        "isBase64Encoded": True,
-        "body": encoded_pdf
-    }
-
 
 def sumar(event):
     x = int(event["queryStringParameters"].get("x", 0))
