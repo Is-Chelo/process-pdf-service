@@ -3,7 +3,7 @@ import base64
 import tempfile
 from weasyprint import HTML
 
-def pdf_generate():
+def pdf_generate(event):
     
     data = json.loads(event.get("body", "{}"))
     html_content = int(data.get("html_content", 0))
