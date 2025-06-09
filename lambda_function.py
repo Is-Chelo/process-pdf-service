@@ -1,7 +1,7 @@
-import json
-import base64
-import tempfile
-from weasyprint import HTML
+# import json
+# import base64
+# import tempfile
+# from weasyprint import HTML
 
 
 def sumar(event):
