@@ -5,7 +5,7 @@ import os
 import uuid
 s3 = boto3.client("s3")
 
-BUCKET_NAME = os.environ.get("PDF_BUCKET_NAME", "solunes-modules")  # Usa variable de entorno o pon directo
+BUCKET_NAME = os.environ.get("PDF_BUCKET_NAME", "solunes-storage")  # Usa variable de entorno o pon directo
 
 def health():
     return {
