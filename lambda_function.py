@@ -1,6 +1,9 @@
 from weasyprint import HTML
 import json
 
+s3 = boto3.client("s3")
+
+BUCKET_NAME = os.environ.get("PDF_BUCKET_NAME", "solunes-modules")  # Usa variable de entorno o pon directo
 
 def health():
     return {
@@ -8,11 +11,32 @@ def health():
         "body": json.dumps("Hola mundo desde health")
     }
 
+def upload_pdf_to_s3(pdf_bytes, filename):
+    s3.put_object(
+        Bucket=BUCKET_NAME,
+        Key=filename,
+        Body=pdf_bytes,
+        ContentType='application/pdf'
+    )
+    url = s3.generate_presigned_url(
+        'get_object',
+        Params={'Bucket': BUCKET_NAME, 'Key': filename},
+        ExpiresIn=3600  # 1 hora
+    )
+    return url
+
+
 def convert_to_pdf(html: str):
     pdf_bytes = HTML(string=html).write_pdf()
+    unique_filename = f"credentials/{uuid.uuid4()}.pdf"
+    url = upload_pdf_to_s3(pdf_bytes, unique_filename)
+
     return {
         "statusCode": 200,
-        "body": json.dumps({"message": "PDF generado", "size_bytes": len(pdf_bytes)})
+        "body": json.dumps({
+            "message": "PDF generado y subido a S3",
+            "url": url
+        })
     }
 
 
