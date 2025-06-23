@@ -18,7 +18,7 @@ def convert_to_pdf(html: str):
     }
 
 
-
+# Primer deploy
 def lambda_handler(event, context):
     # Se espera que event tenga {"function": "health"} o {"function": "convert_to_pdf", "html": "..."}
     try:
