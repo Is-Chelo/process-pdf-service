@@ -10,20 +10,37 @@ def health():
 
 def convert_to_pdf(html: str):
     pdf_bytes = HTML(string=html).write_pdf()
-    # Si quieres subir a S3, hazlo aquí
-    # Pero para ejemplo solo devolvemos tamaño PDF
     return {
         "statusCode": 200,
         "body": json.dumps({"message": "PDF generado", "size_bytes": len(pdf_bytes)})
     }
 
 
-# Primer deploy
+
+
 def lambda_handler(event, context):
-    # Se espera que event tenga {"function": "health"} o {"function": "convert_to_pdf", "html": "..."}
     try:
-        data = event.get('queryStringParameters') or event  
-        func = data.get('function', '')
+        # 1. Inicializa vacío
+        data = {}
+
+        # 2. Si viene desde API Gateway con queryStringParameters
+        if 'queryStringParameters' in event and event['queryStringParameters']:
+            data = event['queryStringParameters']
+
+        # 3. Si viene desde API Gateway con body JSON (POST)
+        elif 'body' in event and event['body']:
+            try:
+                data = json.loads(event['body']) if isinstance(event['body'], str) else event['body']
+            except json.JSONDecodeError:
+                return {"statusCode": 400, "body": json.dumps("Body inválido")}
+
+        # 4. Si es invocación directa (como desde consola Lambda)
+        elif isinstance(event, dict):
+            data = event
+
+        # 5. Obtener función
+        func = data.get('function', '').strip()
+
         if func == 'health':
             return health()
         elif func == 'convert_to_pdf':
