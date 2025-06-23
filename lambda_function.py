@@ -22,7 +22,7 @@ def convert_to_pdf(html: str):
 def lambda_handler(event, context):
     # Se espera que event tenga {"function": "health"} o {"function": "convert_to_pdf", "html": "..."}
     try:
-        data = event.get('queryStringParameters') or {}
+        data = event.get('queryStringParameters') or event  
         func = data.get('function', '')
         if func == 'health':
             return health()
