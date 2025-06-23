@@ -1,27 +1,21 @@
-import json
-# import base64
-# import tempfile
-# from weasyprint import HTML
+from weasyprint import HTML
+
+def health():
+    print("Hola mundo")
 
 
-def sumar(event):
-    x = int(event["queryStringParameters"].get("x", 0))
-    y = int(event["queryStringParameters"].get("y", 0))
-    return {
-        "statusCode": 200,
-        "body": json.dumps({"resultado": x + y})
-    }
+
+def convert_to_pdf(html: str):
+    output_path = "/app/output/salida.pdf"
+    HTML(string=html).write_pdf(output_path)
+    print(f"PDF generado con éxito en {output_path}")
+    return 
 
 
-def lambda_handler(event, context):
-    path = event.get("path", "/")
-
-    if "/sumar" in path:
-        return sumar(event)
-    elif "/pdf" in path:
-        return pdf_generate()
+if __name__ == "__main__":
+    function_name = input("INTRO LA FUNCION: \n")
+    if function_name == 'health':
+        health()
     else:
-        return {
-            "statusCode": 404,
-            "body": json.dumps("Ruta no encontrada")
-        }
+        html_input = input('Introduce el HTML:n')
+        convert_to_pdf(html_input)

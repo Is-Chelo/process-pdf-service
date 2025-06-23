@@ -1,29 +1,36 @@
-# Imagen base oficial con Python + todas las dependencias de WeasyPrint
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-# Evita problemas con stdin
-ENV PYTHONUNBUFFERED=1
+# Evita errores con variables regionales
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Instala dependencias del sistema necesarias para WeasyPrint
+# Instalar dependencias del sistema para WeasyPrint
 RUN apt-get update && apt-get install -y \
     build-essential \
+    libcairo2 \
     libpango-1.0-0 \
     libpangocairo-1.0-0 \
-    libcairo2 \
     libgdk-pixbuf2.0-0 \
     libffi-dev \
-    libglib2.0-0 \
+    shared-mime-info \
+    libxml2 \
+    libxslt1.1 \
+    libjpeg-dev \
+    zlib1g-dev \
+    fonts-liberation \
+    fonts-dejavu \
+    fontconfig \
     curl \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Establece directorio de trabajo
+# Crear directorio de trabajo
 WORKDIR /app
 
-# Copia archivos del proyecto
-COPY . /app
+# Copiar archivos al contenedor
+COPY . .
 
-# Instala dependencias de Python
+# Instalar weasyprint
 RUN pip install --no-cache-dir weasyprint
 
-# Comando por defecto (puedes reemplazarlo si tienes otro script)
+# Ejecutar el script
 CMD ["python", "lambda_function.py"]
