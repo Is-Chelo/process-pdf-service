@@ -1,5 +1,5 @@
 FROM public.ecr.aws/lambda/python:3.11
- 
+
 # Instala las librerías necesarias del sistema
 RUN yum install -y \
     cairo \
@@ -15,13 +15,13 @@ RUN yum install -y \
     fontconfig \
     freetype \
     && yum clean all
- 
+
 # Copia tu código fuente
 COPY . ${LAMBDA_TASK_ROOT}
- 
-# Instala las dependencias de Python
-RUN pip install --target "${LAMBDA_TASK_ROOT}" "weasyprint<53" boto3
 
+# Instala las dependencias de Python
+RUN pip install --target "${LAMBDA_TASK_ROOT}" "weasyprint<53"
+RUN pip install --target "${LAMBDA_TASK_ROOT}" boto3
 
 # Define el handler
 CMD ["lambda_function.lambda_handler"]
