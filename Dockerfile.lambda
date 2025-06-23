@@ -1,33 +1,20 @@
 FROM public.ecr.aws/lambda/python:3.11
 
-# Evita errores con variables regionales
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Instalar dependencias del sistema para WeasyPrint
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libcairo2 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libgdk-pixbuf2.0-0 \
-    libffi-dev \
-    shared-mime-info \
+# Instala dependencias del sistema necesarias para WeasyPrint
+RUN yum install -y \
+    cairo \
+    pango \
+    gdk-pixbuf2 \
+    libffi-devel \
+    libjpeg-turbo-devel \
     libxml2 \
-    libxslt1.1 \
-    libjpeg-dev \
-    zlib1g-dev \
-    fonts-liberation \
-    fonts-dejavu \
+    libxslt \
     fontconfig \
-    curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && yum clean all
 
-# Copiar archivos
+# Copia tu código y dependencias Python
 COPY . ${LAMBDA_TASK_ROOT}/
 
-# Instalar dependencias dentro de la carpeta Lambda
 RUN pip install --target "${LAMBDA_TASK_ROOT}" weasyprint boto3
 
-# Definir handler de Lambda
 CMD ["lambda_function.lambda_handler"]
