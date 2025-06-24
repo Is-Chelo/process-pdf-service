@@ -7,12 +7,15 @@ s3 = boto3.client("s3")
 
 BUCKET_NAME =  "solunes-lambda-storage"  # Usa variable de entorno o pon directo
 
+
 def health():
     return {
         "statusCode": 200,
         "body": json.dumps("Hola mundo desde health")
     }
 
+
+# TODO: Funcion para subir al s3 
 def upload_pdf_to_s3(pdf_bytes, filename):
     s3.put_object(
         Bucket=BUCKET_NAME,
@@ -23,14 +26,13 @@ def upload_pdf_to_s3(pdf_bytes, filename):
     url = s3.generate_presigned_url(
         'get_object',
         Params={'Bucket': BUCKET_NAME, 'Key': filename},
-        ExpiresIn=3600  # 1 hora
     )
     return url
 
-
-def convert_to_pdf(html: str):
+# TODO: Funcion para convertir el hmlt a pdf
+def convert_to_pdf(html: str, path:str):
     pdf_bytes = HTML(string=html).write_pdf()
-    unique_filename = f"credentials/{uuid.uuid4()}.pdf"
+    unique_filename = f"{path}/{uuid.uuid4()}.pdf"
     url = upload_pdf_to_s3(pdf_bytes, unique_filename)
 
     return {
@@ -67,13 +69,15 @@ def lambda_handler(event, context):
         # 5. Obtener función
         func = data.get('function', '').strip()
 
+
         if func == 'health':
             return health()
         elif func == 'convert_to_pdf':
             html = data.get('html', '')
+            path = data.get('path', 'credentials')
             if not html:
                 return {"statusCode": 400, "body": json.dumps("Falta parámetro html")}
-            return convert_to_pdf(html)
+            return convert_to_pdf(html, path)
         else:
             return {"statusCode": 400, "body": json.dumps("Función no reconocida")}
     except Exception as e:
