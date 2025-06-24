@@ -21,12 +21,12 @@ def upload_pdf_to_s3(pdf_bytes, filename):
         Bucket=BUCKET_NAME,
         Key=filename,
         Body=pdf_bytes,
-        ContentType='application/pdf'
+        ContentType='application/pdf',
+        ACL='public-read'
     )
-    url = s3.generate_presigned_url(
-        'get_object',
-        Params={'Bucket': BUCKET_NAME, 'Key': filename},
-    )
+
+    # URL pública directa (sin firma)
+    url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{filename}"
     return url
 
 # TODO: Funcion para convertir el hmlt a pdf
