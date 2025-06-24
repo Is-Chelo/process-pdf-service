@@ -21,8 +21,7 @@ def upload_pdf_to_s3(pdf_bytes, filename):
         Bucket=BUCKET_NAME,
         Key=filename,
         Body=pdf_bytes,
-        ContentType='application/pdf',
-        ACL='public-read'
+        ContentType='application/pdf'
     )
 
     # URL pública directa (sin firma)
