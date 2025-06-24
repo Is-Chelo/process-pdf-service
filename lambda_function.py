@@ -5,8 +5,7 @@ import os
 import uuid
 s3 = boto3.client("s3")
 
-BUCKET_NAME =  "solunes-lambda-storage"  # Usa variable de entorno o pon directo
-
+BUCKET_NAME = os.environ.get("BUCKET_NAME", "solunes-lambda-storage") # Usa variable de entorno o pon directo
 
 def health():
     return {
